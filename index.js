@@ -1,15 +1,25 @@
 import express from "express";
-import { engine } from "express-handlebars";
+import exphbs from "express-handlebars";
 import bodyParser from "body-parser";
-import { updateClicked } from "./functions/settings-bill.js";
-import { addClicked } from "./functions/settings-bill.js";
-const app = express();
-const settingsBill = updateClicked()
-const addingBill = addClicked(); 
+import { SettingsBill} from "./functions/settings-bill.js";
+//import { addClicked } from "./functions/settings-bill.js";
 
-app.engine("handlebars", engine());
+//const addingBill = addClicked(); 
+
+const handlebarSetup = exphbs.engine({
+  partialsDir: "./views/partials",
+  viewPath: "./views",
+  layoutsDir: "./views/layouts",
+});
+
+
+const app = express();
+
+app.engine("handlebars", handlebarSetup);
 app.set("view engine", "handlebars");
 app.set("views", "./views");
+
+const settingsBill = SettingsBill()
 
 app.use(express.static('public'))
 
@@ -17,51 +27,63 @@ app.use(bodyParser.urlencoded({extended: 'main'}))
 app.use(bodyParser.json())
 
 app.get('/', function (req, res) {
-    res.render('index', {
-        call: settingsBill.getSettingsCallCost().input,
-        sms: settingsBill.getSettingsSmsCost().input,
-        warning: settingsBill.getWarningLevel().input,
-        critical: settingsBill.getCriticalLevel().input,
-        callTotal: addingBill.getSettingsCallTotal(),
-        smsTotal: addingBill.getSettingsSmsTotal(),
-        sumTotal: addingBill.sumTotal()
-        });// console.log(addingBill.getSettingsCallTotal());
+  res.render('index', {
+    settings: settingsBill.getSettings(),
+    totals: settingsBill.totals()})
+        // call: settingsBill.getSettingsCallCost().input,
+        // sms: settingsBill.getSettingsSmsCost().input,
+        // warning: settingsBill.getWarningLevel().input,
+        // critical: settingsBill.getCriticalLevel().input,
+        // callTotal: addingBill.getSettingsCallTotal(),
+        // smsTotal: addingBill.getSettingsSmsTotal(),
+        // sumTotal: addingBill.sumTotal()
+      ;// console.log(addingBill.getSettingsCallTotal());
 });
 //console.log(call)
 app.post('/settings', function (req, res) {
-    settingsBill.setSettingsCallCost({
-      input: req.body.callCost
-    });
-    settingsBill.setSettingsSmsCost({
-      input: req.body.smsCost
-    });
-    settingsBill.setWarningLevel({
-      input: req.body.warningLevel
-    });
-    settingsBill.setCriticalLevel({
-      input: req.body.criticalLevel,
-    });
+  settingsBill.setSettings({
+    callCost: req.body.callCost,
+    smsCost: req.body.smsCost,
+    warningLevel: req.body.warningLevel,
+    criticalLevel: req.body.criticalLevel
+  })
+    // settingsBill.setSettingsCallCost({
+    //   input: req.body.callCost
+    // });
+    // settingsBill.setSettingsSmsCost({
+    //   input: req.body.smsCost
+    // });
+    // settingsBill.setWarningLevel({
+    //   input: req.body.warningLevel
+    // });
+    // settingsBill.setCriticalLevel({
+    //   input: req.body.criticalLevel,
+    // });
   // console.log(settingsBill.getSettingsCallCost());
     res.redirect('/')
 });
 
 app.post('/action', function (req, res) {
-  addingBill.sumSettingsCall({call: req.body.billItemTypeWithSettings});
-  console.log(
-    "---" +
-      addingBill.sumSettingsCall({ call: req.body.billItemTypeWithSettings })
-  );
-  addingBill.sumSettingsSms(req.body.billItemTypeWithSettings,);
-  console.log(addingBill.sumSettingsSms(req.body.billItemTypeWithSettings));
+  settingsBill.recordAction(req.body.billItemTypeWithSettings);
+  // addingBill.sumSettingsCall({call: req.body.billItemTypeWithSettings});
+  // console.log(
+  //   "---" +
+  //     addingBill.sumSettingsCall({ call: req.body.billItemTypeWithSettings })
+  // );
+  // addingBill.sumSettingsSms(req.body.billItemTypeWithSettings,);
+  // console.log(addingBill.sumSettingsSms(req.body.billItemTypeWithSettings));
   res.redirect("/");
 });
 
 app.get("/actions", function (req, res) {
-
+  res.render('actions', {actions: settingsBill.actions()})
 });
 
-app.get("/actions/:type", function (req, res) {
-
+app.get("/actions/:billItemTypeWithSettings", function (req, res) {
+  const billItemTypeWithSettings = req.params.billItemTypeWithSettings;
+  res.render("actions", {
+    actions: settingsBill.actionsFor(billItemTypeWithSettings),
+  });
 });
 
 const PORT = process.env.PORT || 3011;

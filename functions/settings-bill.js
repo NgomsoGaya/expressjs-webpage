@@ -1,115 +1,119 @@
-    var settingsCallCost = 0
-    var settingsSmsCost = 0
+ export function SettingsBill() {
+   let smsCost;
+   let callCost;
+   let warningLevel;
+   let criticalLevel;
 
-    var warningLevel = 0
-    var criticalLevel = 0
+   let actionList = [];
 
-export function updateClicked() {
+   function setSettings(settings) {
+     smsCost = Number(settings.smsCost);
+     callCost = Number(settings.callCost);
+     warningLevel = settings.warningLevel;
+     criticalLevel = settings.criticalLevel;
+   }
 
-    function setSettingsCallCost(input){
-     settingsCallCost = input
-    }
+   function getSettings() {
+     return {
+       smsCost,
+       callCost,
+       warningLevel,
+       criticalLevel,
+     };
+   }
 
-    function getSettingsCallCost(){
-        return settingsCallCost
-    }
-    
-    function setSettingsSmsCost(input){
-    settingsSmsCost = input
-    }
-
-    function getSettingsSmsCost(){
-        return settingsSmsCost
-    }
-
-    function setWarningLevel(input){
-         warningLevel = input
-     }
-    
-    function getWarningLevel(){
-         return warningLevel
-     }
-
-    function setCriticalLevel(input){
-         criticalLevel = input
+   function recordAction(action) {
+     let cost = 0;
+     if (action === "sms") {
+       cost = smsCost;
+     } else if (action === "call") {
+       cost = callCost;
      }
 
-     function getCriticalLevel(){
-         return criticalLevel
+     actionList.push({
+       type: action,
+       cost,
+       timestamp: new Date(),
+     });
+   }
+
+   function actions() {
+     return actionList;
+   }
+
+   function actionsFor(type) {
+     const filteredActions = [];
+
+     // loop through all the entries in the action list
+     for (let index = 0; index < actionList.length; index++) {
+       const action = actionList[index];
+       // check this is the type we are doing the total for
+       if (action.type === type) {
+         // add the action to the list
+         filteredActions.push(action);
+       }
      }
 
-    return{
-        setSettingsCallCost,
-        setSettingsSmsCost,
-        getSettingsCallCost,
-        getSettingsSmsCost,
-        setWarningLevel,
-        setCriticalLevel,
-        getWarningLevel,
-        getCriticalLevel
-    }
-}
+     return filteredActions;
 
-export function addClicked() {
-    var settingsCallTotal = 0
-    var settingsSmsTotal= 0
-    var settingsTotal = 0
+     // return actionList.filter((action) => action.type === type);
+   }
 
-    function getWarningLevel(){
-        return warningLevel
-    }
+   function getTotal(type) {
+     let total = 0;
+     // loop through all the entries in the action list
+     for (let index = 0; index < actionList.length; index++) {
+       const action = actionList[index];
+       // check this is the type we are doing the total for
+       if (action.type === type) {
+         // if it is add the total to the list
+         total += action.cost;
+       }
+     }
+     return total;
 
-    function getCriticalLevel(){
-        return criticalLevel
-    }
-    function sumSettingsSms(sms) {
-      if (sumTotal() < getCriticalLevel()) {
-        if (sms.toLowerCase() == "sms") {
-          settingsSmsTotal += settingsSmsCost;
-        }
-      }
-    }
-    //let calls = settingsCallCost
-    function sumSettingsCall(calls) {
-      if (sumTotal() < getCriticalLevel()) {
-        if (calls.toLowerCase() == "call") {
-          settingsCallTotal += settingsCallCost;
-        }
-      }
-    }
+     // the short way using reduce and arrow functions
 
-    function sumTotal(){
-        settingsTotal = settingsCallTotal + settingsSmsTotal
-        return settingsTotal
-    }
+     // return actionList.reduce((total, action) => {
+     //     let val = action.type === type ? action.cost : 0;
+     //     return total + val;
+     // }, 0);
+   }
 
-    function getSettingsSmsTotal(){
-        return settingsSmsTotal
-    }
+   function grandTotal() {
+     return getTotal("sms") + getTotal("call");
+   }
 
-    function getSettingsCallTotal(){
-        return settingsCallTotal
-    }
+   function totals() {
+     let smsTotal = getTotal("sms");
+     let callTotal = getTotal("call");
+     return {
+       smsTotal,
+       callTotal,
+       grandTotal: grandTotal(),
+     };
+   }
 
-    function warningClassName(){
-        if(sumTotal()>= getWarningLevel()){
-            return "warning"
-        }
-    }
+   function hasReachedWarningLevel() {
+     const total = grandTotal();
+     const reachedWarningLevel = total >= warningLevel && total < criticalLevel;
 
-    function criticalClassName(){
-        if(sumTotal()>= getCriticalLevel()){
-            return "critical"
-        }
-    }
+     return reachedWarningLevel;
+   }
 
-    return {
-        sumSettingsSms,
-        sumSettingsCall,
-        getSettingsSmsTotal,
-        getSettingsCallTotal,
-        sumTotal,
-        warningClassName,
-        criticalClassName
-    }
-}
+   function hasReachedCriticalLevel() {
+     const total = grandTotal();
+     return total >= criticalLevel;
+   }
+
+   return {
+     setSettings,
+     getSettings,
+     recordAction,
+     actions,
+     actionsFor,
+     totals,
+     hasReachedWarningLevel,
+     hasReachedCriticalLevel,
+   };
+ };
