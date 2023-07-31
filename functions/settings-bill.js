@@ -70,7 +70,7 @@
          total += action.cost;
        }
      }
-     return total;
+     return total.toFixed(2);
 
      // the short way using reduce and arrow functions
 
@@ -81,7 +81,7 @@
    }
 
    function grandTotal() {
-     return getTotal("sms") + getTotal("call");
+     return (Number(getTotal("sms")) + Number(getTotal("call"))).toFixed(2) ;
    }
 
    function totals() {
