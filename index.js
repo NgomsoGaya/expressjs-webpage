@@ -1,7 +1,7 @@
 import express from "express";
 import exphbs from "express-handlebars";
 import bodyParser from "body-parser";
-import { SettingsBill} from "./functions/settings-bill.js";
+import SettingsBill from "./functions/settings-bill.js";
 //import { addClicked } from "./functions/settings-bill.js";
 
 //const addingBill = addClicked(); 
