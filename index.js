@@ -2,6 +2,7 @@ import express from "express";
 import exphbs from "express-handlebars";
 import bodyParser from "body-parser";
 import SettingsBill from "./functions/settings-bill.js";
+import moment from "moment";
 //import { addClicked } from "./functions/settings-bill.js";
 
 //const addingBill = addClicked(); 
@@ -27,17 +28,19 @@ app.use(bodyParser.urlencoded({extended: 'main'}))
 app.use(bodyParser.json())
 
 app.get('/', function (req, res) {
-  res.render('index', {
+  res.render("index", {
     settings: settingsBill.getSettings(),
-    totals: settingsBill.totals()})
-        // call: settingsBill.getSettingsCallCost().input,
-        // sms: settingsBill.getSettingsSmsCost().input,
-        // warning: settingsBill.getWarningLevel().input,
-        // critical: settingsBill.getCriticalLevel().input,
-        // callTotal: addingBill.getSettingsCallTotal(),
-        // smsTotal: addingBill.getSettingsSmsTotal(),
-        // sumTotal: addingBill.sumTotal()
-      ;// console.log(addingBill.getSettingsCallTotal());
+    totals: settingsBill.totals(),
+    colorChange: settingsBill.colorChange(),
+    //timestamp: moment().fromNow(),
+  });
+  // call: settingsBill.getSettingsCallCost().input,
+  // sms: settingsBill.getSettingsSmsCost().input,
+  // warning: settingsBill.getWarningLevel().input,
+  // critical: settingsBill.getCriticalLevel().input,
+  // callTotal: addingBill.getSettingsCallTotal(),
+  // smsTotal: addingBill.getSettingsSmsTotal(),
+  // sumTotal: addingBill.sumTotal()// console.log(addingBill.getSettingsCallTotal());
 });
 //console.log(call)
 app.post('/settings', function (req, res) {

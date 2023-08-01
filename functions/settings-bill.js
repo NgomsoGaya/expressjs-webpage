@@ -1,16 +1,18 @@
- export default function SettingsBill() {
+import moment from "moment";
+
+export default function SettingsBill() {
    let smsCost;
    let callCost;
    let warningLevel;
    let criticalLevel;
-
+   
    let actionList = [];
 
    function setSettings(settings) {
      smsCost = Number(settings.smsCost);
      callCost = Number(settings.callCost);
-     warningLevel = settings.warningLevel;
-     criticalLevel = settings.criticalLevel;
+     warningLevel = Number(settings.warningLevel) ;
+     criticalLevel = Number(settings.criticalLevel) ;
    }
 
    function getSettings() {
@@ -22,22 +24,37 @@
      };
    }
 
-   function recordAction(action) {
+  function recordAction(action) {
+      if (grandTotal() >= criticalLevel) {
+        return;
+      }
      let cost = 0;
      if (action === "sms") {
        cost = smsCost;
      } else if (action === "call") {
        cost = callCost;
      }
-
+   
+    if (action) {
      actionList.push({
        type: action,
-       cost,
+       cost: cost,
        timestamp: new Date(),
-     });
+      // momentStamp: moment(timestamp),
+     })
+    };
    }
 
-   function actions() {
+  function actions() {
+    // const keyToUpdate = actionList.timestamp
+    // const newValue = moment().calendar()
+    // //use map to mdofiy data
+    // const modifiedActionList = actionList.findIndex(item => item.key === keyToUpdate)
+    // if (modifiedActionList !== -1) {
+    //   actionList[modifiedActionList].value = newValue;
+    // }
+      //return {...item, value: actionList.timestamp = moment(actionList.timestamp).fromNow()}
+   // })
      return actionList;
    }
 
@@ -62,13 +79,15 @@
    function getTotal(type) {
      let total = 0;
      // loop through all the entries in the action list
-     for (let index = 0; index < actionList.length; index++) {
+    //if (!(grandTotal() >= criticalLevel)) {
+      for (let index = 0; index < actionList.length; index++) {
        const action = actionList[index];
        // check this is the type we are doing the total for
        if (action.type === type) {
          // if it is add the total to the list
          total += action.cost;
        }
+    // } 
      }
      return total.toFixed(2);
 
@@ -105,7 +124,18 @@
      const total = grandTotal();
      return total >= criticalLevel;
    }
-
+  
+  function colorChange(){
+    if (hasReachedCriticalLevel()) { 
+      return "danger";
+    }
+    else if (hasReachedWarningLevel()) {
+      return "warning";
+    }  
+    // else {
+    //   return ""
+    // }
+  }
    return {
      setSettings,
      getSettings,
@@ -115,5 +145,6 @@
      totals,
      hasReachedWarningLevel,
      hasReachedCriticalLevel,
+     colorChange
    };
  };
