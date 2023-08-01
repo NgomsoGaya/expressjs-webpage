@@ -32,7 +32,7 @@ app.get('/', function (req, res) {
     settings: settingsBill.getSettings(),
     totals: settingsBill.totals(),
     colorChange: settingsBill.colorChange(),
-    //timestamp: moment().fromNow(),
+    //timestamp: moment('timestamp').fromNow(),
   });
   // call: settingsBill.getSettingsCallCost().input,
   // sms: settingsBill.getSettingsSmsCost().input,
@@ -79,7 +79,18 @@ app.post('/action', function (req, res) {
 });
 
 app.get("/actions", function (req, res) {
-  res.render('actions', {actions: settingsBill.actions()})
+
+  const newObject = settingsBill.actions().map(item => {
+    
+    return {
+      type: item.type,
+      cost: item.cost,
+      timestamp: moment(item.timestamp).fromNow()
+    }
+
+  })
+
+  res.render('actions', {actions: newObject })
 });
 
 app.get("/actions/:billItemTypeWithSettings", function (req, res) {

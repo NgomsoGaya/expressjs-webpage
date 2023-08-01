@@ -1,5 +1,3 @@
-import moment from "moment";
-
 export default function SettingsBill() {
    let smsCost;
    let callCost;
@@ -29,13 +27,13 @@ export default function SettingsBill() {
         return;
       }
      let cost = 0;
-     if (action === "sms") {
+     if (action === "sms" && smsCost > 0) {
        cost = smsCost;
-     } else if (action === "call") {
+     } else if (action === "call" && callCost > 0) {
        cost = callCost;
      }
    
-    if (action) {
+    if (action && cost > 0) {
      actionList.push({
        type: action,
        cost: cost,
@@ -60,19 +58,18 @@ export default function SettingsBill() {
 
    function actionsFor(type) {
      const filteredActions = [];
-
+    //if (recordAction.cost > 0) {
+      for (let index = 0; index < actionList.length; index++) {
+        const action = actionList[index];
+        // check this is the type we are doing the total for
+        if (action.type === type) {
+          // add the action to the list
+          filteredActions.push(action);
+        }
+     // }
+    }
      // loop through all the entries in the action list
-     for (let index = 0; index < actionList.length; index++) {
-       const action = actionList[index];
-       // check this is the type we are doing the total for
-       if (action.type === type) {
-         // add the action to the list
-         filteredActions.push(action);
-       }
-     }
-
      return filteredActions;
-
      // return actionList.filter((action) => action.type === type);
    }
 
