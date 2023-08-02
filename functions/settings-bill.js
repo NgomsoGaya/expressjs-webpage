@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export default function SettingsBill() {
    let smsCost;
    let callCost;
@@ -56,11 +58,21 @@ export default function SettingsBill() {
      return actionList;
    }
 
-   function actionsFor(type) {
-     const filteredActions = [];
+  function actionsFor(type) {
+     
+    const filteredActions = [];
+    
+    const newObject = actionList.map(item => {
+    
+      return {
+        type: item.type,
+        cost: item.cost,
+        timestamp: moment(item.timestamp).fromNow()
+      }
+    })
     //if (recordAction.cost > 0) {
-      for (let index = 0; index < actionList.length; index++) {
-        const action = actionList[index];
+      for (let index = 0; index < newObject.length; index++) {
+        const action = newObject[index];
         // check this is the type we are doing the total for
         if (action.type === type) {
           // add the action to the list

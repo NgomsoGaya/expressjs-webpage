@@ -95,6 +95,7 @@ app.get("/actions", function (req, res) {
 
 app.get("/actions/:billItemTypeWithSettings", function (req, res) {
   const billItemTypeWithSettings = req.params.billItemTypeWithSettings;
+  
   res.render("actions", {
     actions: settingsBill.actionsFor(billItemTypeWithSettings),
   });
